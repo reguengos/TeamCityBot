@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamCityBotConsole", "TeamCityBotConsole\TeamCityBotConsole.csproj", "{29ED44EF-1AFA-44AB-A581-8A602B582E4B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloBotCore", "HelloBotCore\HelloBotCore.csproj", "{F9500B18-085E-4A3D-B215-75EC409E05DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloBotCommunication", "HelloBotCommunication\HelloBotCommunication.csproj", "{53EB844B-B3A7-4397-9DB3-84F5D9F30840}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{29ED44EF-1AFA-44AB-A581-8A602B582E4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29ED44EF-1AFA-44AB-A581-8A602B582E4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29ED44EF-1AFA-44AB-A581-8A602B582E4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29ED44EF-1AFA-44AB-A581-8A602B582E4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9500B18-085E-4A3D-B215-75EC409E05DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9500B18-085E-4A3D-B215-75EC409E05DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9500B18-085E-4A3D-B215-75EC409E05DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9500B18-085E-4A3D-B215-75EC409E05DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53EB844B-B3A7-4397-9DB3-84F5D9F30840}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53EB844B-B3A7-4397-9DB3-84F5D9F30840}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53EB844B-B3A7-4397-9DB3-84F5D9F30840}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53EB844B-B3A7-4397-9DB3-84F5D9F30840}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
