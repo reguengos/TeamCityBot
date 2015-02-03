@@ -25,6 +25,7 @@ namespace TeamCityBot
         private static string lastBastard;
         private static object syncRoot = new object();
         private static Random r = new Random();
+		private static DateTime? lastFailedTime;
 
         private static string publishChatName;
         private static string server;
@@ -121,8 +122,9 @@ namespace TeamCityBot
                     {
                         lastCheckedBuildId = build.Id;
                         Console.WriteLine("Build {0}: {1}", build.Number, build.Status);
-                        if (build.Status != "SUCCESS")
+						if (build.Status != "SUCCESS" && (!lastFailedTime.HasValue || (DateTime.Now - lastFailedTime.Value).TotalMinutes >= 30))
                         {
+
                             string msg;
                             if (!wasBroken)
                             {
@@ -140,6 +142,7 @@ namespace TeamCityBot
                                 build.WebUrl);
                             }
 
+							lastFailedTime = DateTime.Now;
                             SendMessage(msg, publishChat);
                         }
                         else
@@ -152,6 +155,7 @@ namespace TeamCityBot
                                 SendMessage(msg, publishChat);
                                 wasBroken = false;
                             }
+							lastFailedTime = null;
                             wasBroken = false;
                         }
                     }
