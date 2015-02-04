@@ -149,9 +149,10 @@ namespace TeamCityBot
 					                    "", build.Number, lastBastard,
 					                    build.WebUrl);
 			                    }
+
+			                    lastFailedTime = DateTime.Now;
 			                    SendMessage(msg, publishChat);
 		                    }
-							lastFailedTime = DateTime.Now;
 	                    }
 	                    else
 	                    {
