@@ -122,42 +122,54 @@ namespace TeamCityBot
                     {
                         lastCheckedBuildId = build.Id;
                         Console.WriteLine("Build {0}: {1}", build.Number, build.Status);
-						if (build.Status != "SUCCESS" && (!lastFailedTime.HasValue || (DateTime.Now - lastFailedTime.Value).TotalMinutes >= 30))
-                        {
+	                    if (build.Status != "SUCCESS")
+	                    {
+		                    if (!lastFailedTime.HasValue ||
+		                        (DateTime.Now - lastFailedTime.Value).TotalMinutes >= 30)
+		                    {
 
-                            string msg;
-                            if (!wasBroken)
-                            {
-                                var changes = client.Changes.ByLocator(ChangeLocator.WithBuildId(long.Parse(build.Id))).FirstOrDefault();
+			                    string msg;
+			                    if (!wasBroken)
+			                    {
+				                    var changes =
+					                    client.Changes.ByLocator(
+						                    ChangeLocator.WithBuildId(long.Parse(build.Id)))
+						                    .FirstOrDefault();
 
-                                lastBastard = changes != null ? changes.Username : "<anonymous>";
-                                wasBroken = true;
+				                    lastBastard = changes != null ? changes.Username : "<anonymous>";
+				                    wasBroken = true;
 
-                                msg = String.Format("{0} Build {1} is broken by: {2} {3}", "", build.Number, lastBastard,
-                                build.WebUrl);
-                            }
-                            else
-                            {
-                                msg = String.Format("{0} Build {1} is still broken by: {2} {3}", "", build.Number, lastBastard,
-                                build.WebUrl);
-                            }
-
+				                    msg = String.Format("{0} Build {1} is broken by: {2} {3}", "",
+					                    build.Number, lastBastard,
+					                    build.WebUrl);
+			                    }
+			                    else
+			                    {
+				                    msg = String.Format("{0} Build {1} is still broken by: {2} {3}",
+					                    "", build.Number, lastBastard,
+					                    build.WebUrl);
+			                    }
+			                    SendMessage(msg, publishChat);
+		                    }
 							lastFailedTime = DateTime.Now;
-                            SendMessage(msg, publishChat);
-                        }
-                        else
-                        {
-                            if (wasBroken)
-                            {
-                                var changes = client.Changes.ByLocator(ChangeLocator.WithBuildId(long.Parse(build.Id))).FirstOrDefault();
-                                var author = changes != null ? changes.Username : "<anonymous>";
-                                var msg = String.Format(@"{0} Build {1} is fixed by: {2}. Nice job!", GetRandomEmoji(successEmoji), build.Number, author);
-                                SendMessage(msg, publishChat);
-                                wasBroken = false;
-                            }
-							lastFailedTime = null;
-                            wasBroken = false;
-                        }
+	                    }
+	                    else
+	                    {
+		                    if (wasBroken)
+		                    {
+			                    var changes =
+				                    client.Changes.ByLocator(
+					                    ChangeLocator.WithBuildId(long.Parse(build.Id))).FirstOrDefault();
+			                    var author = changes != null ? changes.Username : "<anonymous>";
+			                    var msg =
+				                    String.Format(@"{0} Build {1} is fixed by: {2}. Nice job!",
+					                    GetRandomEmoji(successEmoji), build.Number, author);
+			                    SendMessage(msg, publishChat);
+			                    wasBroken = false;
+		                    }
+		                    lastFailedTime = null;
+		                    wasBroken = false;
+	                    }
                     }
                 }
             }
