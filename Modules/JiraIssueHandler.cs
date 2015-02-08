@@ -55,9 +55,9 @@ namespace Modules
             }
 
             var hostUri = new Uri(_jiraAddress);
-            var issueLink = new Uri(hostUri,  "/rest/api/latest/issue/" + issue);
+            var restIssueLink = new Uri(hostUri,  "/rest/api/latest/issue/" + issue);
 
-            WebRequest request = (HttpWebRequest)WebRequest.Create(issueLink);
+            WebRequest request = (HttpWebRequest)WebRequest.Create(restIssueLink);
             String encoded = System.Convert.ToBase64String(System.Text.Encoding.GetEncoding("ISO-8859-1").GetBytes(_login + ":" + _password));
             request.Headers.Add("Authorization", "Basic " + encoded);
             request.PreAuthenticate = true;
@@ -73,7 +73,10 @@ namespace Modules
             sb.AppendLine();
             sb.AppendLine("Автор: " + obj.fields.creator.displayName as string);
             sb.AppendLine("Исполнитель: " + obj.fields.assignee.displayName as string);
-            sb.AppendLine(obj.self.Value as string);
+
+            var link = String.Format("https://jira.egspace.ru/browse/{0}", issue);
+
+            sb.AppendLine(link);
 
             sendMessageFunc(sb.ToString());
         }
