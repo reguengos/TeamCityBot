@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloBotCore", "HelloBotCor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloBotCommunication", "HelloBotCommunication\HelloBotCommunication.csproj", "{53EB844B-B3A7-4397-9DB3-84F5D9F30840}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruok", "Ruok\Ruok.csproj", "{E97288A0-FC3C-41C7-AB26-42928F5EBD31}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Modules", "Modules\Modules.csproj", "{E97288A0-FC3C-41C7-AB26-42928F5EBD31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -50,7 +50,18 @@ namespace TeamCityBot
             password = args[3];
             buildConfigId = args[4];
 
-            bot = new HelloBot();
+            var moduleParameters = new Dictionary<string, string>();
+
+            foreach (var arg in args.Skip(5))
+            {
+                var p = arg.Split(':');
+                if (p.Length == 2)
+                {
+                    moduleParameters[p[0]] = p[1];
+                }
+            }
+
+            bot = new HelloBot(moduleParameters);
             bot.OnErrorOccured += BotOnErrorOccured;
 
             Task.Run(delegate

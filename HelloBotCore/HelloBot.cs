@@ -13,7 +13,9 @@ namespace HelloBotCore
     public class HelloBot
     {
         private  List<IActionHandler> handlers = new List<IActionHandler>();
+        private List<IRegexActionHandler> regexHandlers = new List<IRegexActionHandler>();
         private IDictionary<string, Tuple<string, Func<string>>> systemCommands;
+        private IDictionary<string, string> moduleParameters;
         private string dllMask { get; set; }
         private string botCommandPrefix;
         private int commandTimeoutSec;
@@ -23,11 +25,12 @@ namespace HelloBotCore
         /// </summary>
         /// <param name="dllMask">File mask for retrieving client command dlls</param>
         /// <param name="botCommandPrefix">Prefix for bot commands. Only messages with that prefix will be handled</param>
-        public HelloBot(string dllMask = "*.dll", string botCommandPrefix = "!")
+        public HelloBot(IDictionary<string, string> moduleParameters, string dllMask = "*.dll", string botCommandPrefix = "!")
         {
             this.dllMask = dllMask;
             this.botCommandPrefix = botCommandPrefix;
             this.commandTimeoutSec = 60;
+            this.moduleParameters = moduleParameters;
 
             systemCommands = new Dictionary<string, Tuple<string, Func<string>>>()
             {
@@ -40,6 +43,7 @@ namespace HelloBotCore
         private void RegisterModules()
         {
             handlers = GetHandlers();
+            regexHandlers = handlers.Select(x => x as IRegexActionHandler).Where(x => x!=null).ToList();
         }
 
         protected virtual List<IActionHandler> GetHandlers()
@@ -52,18 +56,15 @@ namespace HelloBotCore
                 var ass = Assembly.LoadFile(Environment.CurrentDirectory + dll);
 
                 //get types from assembly
-                var typesInAssembly = ass.GetTypes().Where(x => i.IsAssignableFrom(x)).ToList();
+                var typesInAssembly = ass.GetTypes().Where(x => i.IsAssignableFrom(x) && !x.IsInterface).ToList();
 
                 foreach (Type type in typesInAssembly)
                 {
                     object obj = Activator.CreateInstance(type);
-                    var clientHandlers = ((IActionHandlerRegister)obj).GetHandlers();
+                    var clientHandlers = ((IActionHandlerRegister)obj).GetHandlers(moduleParameters);
                     foreach (IActionHandler handler in clientHandlers)
                     {
-                        if (handler.CallCommandList.Any())
-                        {
-                            toReturn.Add(handler);
-                        }
+                        toReturn.Add(handler);
                     }
                 }
             }
@@ -90,42 +91,68 @@ namespace HelloBotCore
 
                         IActionHandler handler = FindHandler(command, out command);
 
-                        if (handler != null)
-                        {
-                            string args = incomingMessage.Substring(incomingMessage.IndexOf(command, StringComparison.InvariantCulture) + command.Length).Trim();
-
-                            IActionHandler hnd = handler;
-                            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(commandTimeoutSec));
-                            var token = cts.Token;
-
-                            Task.Run(() =>
-                            {
-                                using (cts.Token.Register(Thread.CurrentThread.Abort))
-                                {
-                                    try
-                                    {
-                                        hnd.HandleMessage(args, data, answerCallback);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        if (OnErrorOccured != null)
-                                        {
-                                            OnErrorOccured(ex);
-                                        }
-                                        answerCallback(command + " пал смертью храбрых :(");
-                                    }
-                                }
-
-                            }, token);
-
-                        }
+                        HandleCommand(incomingMessage, answerCallback, data, command, handler);
                     }
                 }
+            }
+            else
+            {
+                IActionHandler handler = FindHandlerByRegex(incomingMessage);
+                if (handler != null)
+                {
+                    handler.HandleMessage(incomingMessage, data, answerCallback);
+                }
+            }
+        }
+
+        private void HandleCommand(string incomingMessage, Action<string> answerCallback, object data, string command, IActionHandler handler)
+        {
+            if (handler != null)
+            {
+                string args = incomingMessage.Substring(incomingMessage.IndexOf(command, StringComparison.InvariantCulture) + command.Length).Trim();
+
+                IActionHandler hnd = handler;
+                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(commandTimeoutSec));
+                var token = cts.Token;
+
+                Task.Run(() =>
+                {
+                    using (cts.Token.Register(Thread.CurrentThread.Abort))
+                    {
+                        try
+                        {
+                            hnd.HandleMessage(args, data, answerCallback);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (OnErrorOccured != null)
+                            {
+                                OnErrorOccured(ex);
+                            }
+                            answerCallback(command + " пал смертью храбрых :(");
+                        }
+                    }
+
+                }, token);
+
             }
         }
 
         public delegate void onErrorOccuredDelegate(Exception ex);
         public event onErrorOccuredDelegate OnErrorOccured;
+
+        private IActionHandler FindHandlerByRegex(string message)
+        {
+            foreach (var handler in regexHandlers)
+            {
+                if (handler.CallRegexes.Any(x => x.Match(message).Success))
+                {
+                    return handler;
+                }
+            }
+
+            return null;
+        }
 
         private IActionHandler FindHandler(string phrase, out string command)
         {
