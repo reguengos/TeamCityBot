@@ -74,6 +74,16 @@ namespace Modules
             sb.AppendLine("Автор: " + obj.fields.creator.displayName as string);
             sb.AppendLine("Исполнитель: " + obj.fields.assignee.displayName as string);
 
+            if (obj.fields.priority != null)
+            {
+                sb.AppendLine("Приоритет: " + obj.fields.priority.name);
+            }
+
+            if (obj.fields.status != null)
+            {
+                sb.AppendLine("Статус: " + obj.fields.status.name);
+            }
+
             var link = String.Format("https://jira.egspace.ru/browse/{0}", issue);
 
             sb.AppendLine(link);
@@ -83,6 +93,7 @@ namespace Modules
 
         private string ToShort(string input, int num)
         {
+            if (input == null) return null;
             return input.Length <= num ? input : input.Substring(0, num) + "...";
         }
     }
