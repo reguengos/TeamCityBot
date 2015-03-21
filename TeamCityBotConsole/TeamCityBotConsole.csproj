@@ -48,8 +48,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TeamCitySharp">
-      <HintPath>.\TeamCitySharp.dll</HintPath>
+    <Reference Include="TeamCitySharp, Version=0.3.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\TeamCitySharp-forked.1.0.0.0\lib\net40\TeamCitySharp.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
