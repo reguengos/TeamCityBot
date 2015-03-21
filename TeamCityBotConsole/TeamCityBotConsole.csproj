@@ -54,9 +54,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BotParameters.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SkypeData.cs" />
+    <Compile Include="TeamCityBot.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HelloBotCommunication\HelloBotCommunication.csproj">

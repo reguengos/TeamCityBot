@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamCityBotConsole", "TeamCityBotConsole\TeamCityBotConsole.csproj", "{29ED44EF-1AFA-44AB-A581-8A602B582E4B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloBotCore", "HelloBotCore\HelloBotCore.csproj", "{F9500B18-085E-4A3D-B215-75EC409E05DA}"
@@ -8,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloBotCommunication", "HelloBotCommunication\HelloBotCommunication.csproj", "{53EB844B-B3A7-4397-9DB3-84F5D9F30840}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Modules", "Modules\Modules.csproj", "{E97288A0-FC3C-41C7-AB26-42928F5EBD31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{D1E9EFF9-A5BC-4605-9F50-F06C311D9503}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +35,10 @@ Global
 		{E97288A0-FC3C-41C7-AB26-42928F5EBD31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E97288A0-FC3C-41C7-AB26-42928F5EBD31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E97288A0-FC3C-41C7-AB26-42928F5EBD31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1E9EFF9-A5BC-4605-9F50-F06C311D9503}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1E9EFF9-A5BC-4605-9F50-F06C311D9503}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1E9EFF9-A5BC-4605-9F50-F06C311D9503}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1E9EFF9-A5BC-4605-9F50-F06C311D9503}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
