@@ -1,8 +1,5 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{AA2A985A-DD37-4257-9BB2-F752DF69B900}"
 	ProjectSection(SolutionItems) = preProject
 		paket.dependencies = paket.dependencies
@@ -17,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Modules", "Modules\Modules.csproj", "{E97288A0-FC3C-41C7-AB26-42928F5EBD31}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{D1E9EFF9-A5BC-4605-9F50-F06C311D9503}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamCityBot", "TeamCityBot\TeamCityBot.csproj", "{8B394DCA-4FCD-4758-9DFC-002B7972B56B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +43,10 @@ Global
 		{D1E9EFF9-A5BC-4605-9F50-F06C311D9503}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1E9EFF9-A5BC-4605-9F50-F06C311D9503}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1E9EFF9-A5BC-4605-9F50-F06C311D9503}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B394DCA-4FCD-4758-9DFC-002B7972B56B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B394DCA-4FCD-4758-9DFC-002B7972B56B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B394DCA-4FCD-4758-9DFC-002B7972B56B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B394DCA-4FCD-4758-9DFC-002B7972B56B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

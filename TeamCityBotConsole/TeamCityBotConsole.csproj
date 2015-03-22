@@ -7,8 +7,8 @@
     <ProjectGuid>{29ED44EF-1AFA-44AB-A581-8A602B582E4B}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TeamCityBot</RootNamespace>
-    <AssemblyName>TeamCityBot</AssemblyName>
+    <RootNamespace>TeamCityBotConsole</RootNamespace>
+    <AssemblyName>TeamCityBotConsole</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -44,11 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BotParameters.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SkypeData.cs" />
-    <Compile Include="TeamCityBot.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HelloBotCommunication\HelloBotCommunication.csproj">
@@ -58,6 +55,10 @@
     <ProjectReference Include="..\HelloBotCore\HelloBotCore.csproj">
       <Project>{F9500B18-085E-4A3D-B215-75EC409E05DA}</Project>
       <Name>HelloBotCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TeamCityBot\TeamCityBot.csproj">
+      <Project>{8B394DCA-4FCD-4758-9DFC-002B7972B56B}</Project>
+      <Name>TeamCityBot</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

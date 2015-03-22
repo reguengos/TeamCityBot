@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -11,13 +11,14 @@ using Timer = System.Timers.Timer;
 
 namespace TeamCityBot
 {
-    class TeamCityBot
+    public class TeamCityBot
     {
-        private readonly Skype _skype = new Skype();
+        private Skype _skype;
         private HelloBot _bot;
         private Chat _publishChat;
         private string _lastCheckedBuildId;
         private bool _wasBroken;
+        private bool _working;
         private string _lastBastard;
         private readonly object _syncRoot = new object();
         private readonly Random _r = new Random();
@@ -26,13 +27,20 @@ namespace TeamCityBot
         private BotParameters _botParameters;
         private readonly object _lock = new object();
 
-        public void StartBot(BotParameters botParameters, Dictionary<string, string> moduleParameters)
+        public TeamCityBot()
         {
+
+        }
+
+        public Task StartBot(Skype skype, BotParameters botParameters, Dictionary<string, string> moduleParameters)
+        {
+            _working = true;
+            _skype = skype;
             _botParameters = botParameters;
             _bot = new HelloBot(moduleParameters);
             _bot.OnErrorOccured += BotOnErrorOccured;
 
-            Task.Run(delegate
+            return Task.Run(delegate
             {
                 try
                 {
@@ -54,29 +62,26 @@ namespace TeamCityBot
                     _skype.Attach(5, true);
                     Console.WriteLine("skype attached");
 
-                    Timer timer = new Timer {Interval = 15*1000};
+                    Timer timer = new Timer { Interval = 15 * 1000 };
                     timer.Elapsed += timer_Elapsed;
                     timer.AutoReset = true;
                     timer.Start();
 
-                    while (true)
+                    while (_working)
                     {
+                        Thread.Sleep(1000);
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("top lvl exception : " + ex);
                 }
-                while (true)
-                {
-                    Thread.Sleep(1000);
-                }
             });
+        }
 
-            while (true)
-            {
-                Thread.Sleep(1000);
-            }
+        public void Stop()
+        {
+            _working = false;
         }
 
         private string GetRandomEmoji(List<string> emojis)

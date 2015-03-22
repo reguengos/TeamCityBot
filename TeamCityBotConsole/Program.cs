@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using SKYPE4COMLib;
 
 namespace TeamCityBot
 {
@@ -36,7 +38,14 @@ namespace TeamCityBot
                 }
             }
 
-            TeamCityBot.StartBot(botParameters, moduleParameters);
+            var skype = new Skype();
+
+            TeamCityBot.StartBot(skype, botParameters, moduleParameters);
+
+            while (true)
+            {
+                Thread.Sleep(1000);
+            }
         }
     }
 }

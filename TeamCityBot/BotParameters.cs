@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TeamCityBot
 {
-    class BotParameters
+    public class BotParameters
     {
         public string PublishChatName { get; set; }
         public string TeamCityServer { get; set; }
