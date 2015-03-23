@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using SKYPE4COMLib;
+using TeamCitySharp;
 
 namespace TeamCityBot
 {
@@ -40,8 +41,9 @@ namespace TeamCityBot
 
             var skype = new Skype();
             var skypeAdapter = new SkypeAdapter(skype);
+            var teamCityClient = new TeamCityClient(botParameters.TeamCityServer);
 
-            TeamCityBot.StartBot(skypeAdapter, botParameters, moduleParameters);
+            TeamCityBot.StartBot(skypeAdapter, teamCityClient, botParameters, moduleParameters);
 
             while (true)
             {

@@ -13,6 +13,7 @@ namespace TeamCityBot
     public class TeamCityBot
     {
         private ISkypeAdapter _skype;
+        private ITeamCityClient _teamcity;
         private HelloBot _bot;
         private IChat _publishChat;
         private string _lastCheckedBuildId;
@@ -31,10 +32,11 @@ namespace TeamCityBot
 
         }
 
-        public Task StartBot(ISkypeAdapter skype, BotParameters botParameters, Dictionary<string, string> moduleParameters)
+        public Task StartBot(ISkypeAdapter skype, ITeamCityClient teamCity, BotParameters botParameters, Dictionary<string, string> moduleParameters, double interval = 15000)
         {
             _working = true;
             _skype = skype;
+            _teamcity = teamCity;
             _botParameters = botParameters;
             _bot = new HelloBot(moduleParameters);
             _bot.OnErrorOccured += BotOnErrorOccured;
@@ -54,7 +56,7 @@ namespace TeamCityBot
                     }
                     _skype.OnMessageReceived += OnMessageReceived;
                     
-                    Timer timer = new Timer { Interval = 15 * 1000 };
+                    Timer timer = new Timer { Interval = interval };
                     timer.Elapsed += timer_Elapsed;
                     timer.AutoReset = true;
                     timer.Start();
@@ -88,10 +90,9 @@ namespace TeamCityBot
             {
                 lock (_syncRoot)
                 {
-                    var client = new TeamCityClient(_botParameters.TeamCityServer);
-                    client.Connect(_botParameters.TeamCityLogin, _botParameters.TeamCityPassword);
+                    _teamcity.Connect(_botParameters.TeamCityLogin, _botParameters.TeamCityPassword);
 
-                    var build = client.Builds.LastBuildByBuildConfigId(_botParameters.BuildConfigId);
+                    var build = _teamcity.Builds.LastBuildByBuildConfigId(_botParameters.BuildConfigId);
 
                     if (build != null && build.Id != _lastCheckedBuildId)
                     {
@@ -107,7 +108,7 @@ namespace TeamCityBot
                                 if (!_wasBroken)
                                 {
                                     var changes =
-                                        client.Changes.ByLocator(
+                                        _teamcity.Changes.ByLocator(
                                             ChangeLocator.WithBuildId(long.Parse(build.Id)))
                                             .FirstOrDefault();
 
@@ -134,7 +135,7 @@ namespace TeamCityBot
                             if (_wasBroken)
                             {
                                 var changes =
-                                    client.Changes.ByLocator(
+                                    _teamcity.Changes.ByLocator(
                                         ChangeLocator.WithBuildId(long.Parse(build.Id))).FirstOrDefault();
                                 var author = changes != null ? changes.Username : "<anonymous>";
                                 var msg =
