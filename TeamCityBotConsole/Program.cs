@@ -39,8 +39,9 @@ namespace TeamCityBot
             }
 
             var skype = new Skype();
+            var skypeAdapter = new SkypeAdapter(skype);
 
-            TeamCityBot.StartBot(skype, botParameters, moduleParameters);
+            TeamCityBot.StartBot(skypeAdapter, botParameters, moduleParameters);
 
             while (true)
             {

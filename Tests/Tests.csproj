@@ -54,21 +54,14 @@
   </Target>
   -->
   <ItemGroup>
+    <ProjectReference Include="..\Modules\Modules.csproj">
+      <Project>{e97288a0-fc3c-41c7-ab26-42928f5ebd31}</Project>
+      <Name>Modules</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TeamCityBot\TeamCityBot.csproj">
       <Project>{8b394dca-4fcd-4758-9dfc-002b7972b56b}</Project>
       <Name>TeamCityBot</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <COMReference Include="SKYPE4COMLib">
-      <Guid>{03282B5D-B38F-469D-849A-09B0A7F4881B}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
   </ItemGroup>
   <Choose>
     <When Condition="($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3')) Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch')">

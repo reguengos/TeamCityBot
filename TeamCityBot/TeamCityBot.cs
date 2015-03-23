@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HelloBotCore;
-using SKYPE4COMLib;
 using TeamCitySharp;
 using TeamCitySharp.Locators;
 using Timer = System.Timers.Timer;
@@ -13,9 +12,9 @@ namespace TeamCityBot
 {
     public class TeamCityBot
     {
-        private Skype _skype;
+        private ISkypeAdapter _skype;
         private HelloBot _bot;
-        private Chat _publishChat;
+        private IChat _publishChat;
         private string _lastCheckedBuildId;
         private bool _wasBroken;
         private bool _working;
@@ -32,36 +31,29 @@ namespace TeamCityBot
 
         }
 
-        public Task StartBot(Skype skype, BotParameters botParameters, Dictionary<string, string> moduleParameters)
+        public Task StartBot(ISkypeAdapter skype, BotParameters botParameters, Dictionary<string, string> moduleParameters)
         {
             _working = true;
             _skype = skype;
             _botParameters = botParameters;
             _bot = new HelloBot(moduleParameters);
             _bot.OnErrorOccured += BotOnErrorOccured;
-
+            
             return Task.Run(delegate
             {
                 try
                 {
-                    var chats = _skype.Chats;
-
-                    foreach (Chat chat in chats)
+                    _publishChat = _skype.GetChat(botParameters.PublishChatName);
+                    if (_publishChat != null)
                     {
-                        var t = chat.Topic;
-                        if (t == botParameters.PublishChatName)
-                        {
-                            Console.WriteLine("publish chat found!");
-                            _publishChat = chat;
-                            break;
-                        }
+                        Console.WriteLine("publish chat found!");
                     }
-
-                    _skype.MessageStatus += OnMessageReceived;
-
-                    _skype.Attach(5, true);
-                    Console.WriteLine("skype attached");
-
+                    else
+                    {
+                        Console.WriteLine("publish chat NOT found!");
+                    }
+                    _skype.OnMessageReceived += OnMessageReceived;
+                    
                     Timer timer = new Timer { Interval = 15 * 1000 };
                     timer.Elapsed += timer_Elapsed;
                     timer.AutoReset = true;
@@ -134,7 +126,7 @@ namespace TeamCityBot
                                 }
 
                                 _lastFailedTime = DateTime.Now;
-                                SendMessage(msg, _publishChat);
+                                _publishChat.SendMessage(msg);
                             }
                         }
                         else
@@ -148,7 +140,7 @@ namespace TeamCityBot
                                 var msg =
                                     String.Format(@"{0} Build {1} is fixed by: {2}. Nice job!",
                                         GetRandomEmoji(_successEmoji), build.Number, author);
-                                SendMessage(msg, _publishChat);
+                                _publishChat.SendMessage(msg);
                                 _wasBroken = false;
                             }
                             _lastFailedTime = null;
@@ -168,21 +160,15 @@ namespace TeamCityBot
             Console.WriteLine(ex.ToString());
         }
 
-        private void OnMessageReceived(ChatMessage pMessage, TChatMessageStatus status)
+        private void OnMessageReceived(object sender, SkypeMessageReceivedEventArgs e)
         {
-            Console.WriteLine(status + pMessage.Body);
+            Console.WriteLine("{0}: {1}", e.FromDisplayName, e.Body);
 
-            if (status == TChatMessageStatus.cmsReceived)
-            {
-                var cn = pMessage.Chat.Name;
-                var topic = pMessage.Chat.Topic;
-
-                _bot.HandleMessage(pMessage.Body, answer => SendMessage(answer, pMessage.Chat),
-                    new SkypeData() { FromName = pMessage.FromDisplayName });
-            }
+            _bot.HandleMessage(e.Body, answer => SendMessage(answer, e.Chat),
+                    new SkypeData() { FromName = e.FromDisplayName });
         }
 
-        private void SendMessage(string message, Chat toChat)
+        private void SendMessage(string message, IChat toChat)
         {
             if (toChat != null)
             {

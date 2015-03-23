@@ -43,7 +43,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BotParameters.cs" />
+    <Compile Include="Chat.cs" />
+    <Compile Include="IChat.cs" />
+    <Compile Include="ISkypeAdapter.cs" />
+    <Compile Include="SkypeAdapter.cs" />
     <Compile Include="SkypeData.cs" />
+    <Compile Include="SkypeMessageReceivedEventArgs.cs" />
     <Compile Include="TeamCityBot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
