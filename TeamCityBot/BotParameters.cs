@@ -13,5 +13,11 @@ namespace TeamCityBot
         public string TeamCityLogin { get; set; }
         public string TeamCityPassword { get; set; }
         public string BuildConfigId { get; set; }
+        public string[] Branches { get; set; }
+
+        public BotParameters()
+        {
+            Branches = new string[0];
+        }
     }
 }

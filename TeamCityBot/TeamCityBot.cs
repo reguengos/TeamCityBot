@@ -26,6 +26,7 @@ namespace TeamCityBot
         private readonly List<string> _successEmoji = new List<string> { @"\o/", "(^)", "(sun)", "(clap)", "(party)" };
         private BotParameters _botParameters;
         private readonly object _lock = new object();
+        private static List<TeamCityBuildChecker> buildCheckers;
 
         public TeamCityBot()
         {
@@ -41,7 +42,7 @@ namespace TeamCityBot
             _bot = new HelloBot(moduleParameters);
             _bot.OnErrorOccured += BotOnErrorOccured;
             
-            return Task.Run(delegate
+            var task = Task.Run(delegate
             {
                 try
                 {
@@ -71,6 +72,15 @@ namespace TeamCityBot
                     Console.WriteLine("top lvl exception : " + ex);
                 }
             });
+
+            buildCheckers =
+                _botParameters.Branches.Select(
+                    x =>
+                        new TeamCityBuildChecker(
+                            BuildLocator.WithDimensions(buildType: BuildTypeLocator.WithId(_botParameters.BuildConfigId),
+                                branch: x), _teamcity, x)).ToList();
+
+            return task;
         }
 
         public void Stop()
@@ -90,63 +100,9 @@ namespace TeamCityBot
             {
                 lock (_syncRoot)
                 {
-                    _teamcity.Connect(_botParameters.TeamCityLogin, _botParameters.TeamCityPassword);
-
-                    var build = _teamcity.Builds.LastBuildByBuildConfigId(_botParameters.BuildConfigId);
-
-                    if (build != null && build.Id != _lastCheckedBuildId)
+                    foreach (var checker in buildCheckers)
                     {
-                        _lastCheckedBuildId = build.Id;
-                        Console.WriteLine("Build {0}: {1}", build.Number, build.Status);
-                        if (build.Status != "SUCCESS")
-                        {
-                            if (!_lastFailedTime.HasValue ||
-                                (DateTime.Now - _lastFailedTime.Value).TotalMinutes >= 30)
-                            {
-
-                                string msg;
-                                if (!_wasBroken)
-                                {
-                                    var changes =
-                                        _teamcity.Changes.ByLocator(
-                                            ChangeLocator.WithBuildId(long.Parse(build.Id)))
-                                            .FirstOrDefault();
-
-                                    _lastBastard = changes != null ? changes.Username : "<anonymous>";
-                                    _wasBroken = true;
-
-                                    msg = String.Format("{0} Build {1} is broken by: {2} {3}", "",
-                                        build.Number, _lastBastard,
-                                        build.WebUrl);
-                                }
-                                else
-                                {
-                                    msg = String.Format("{0} Build {1} is still broken by: {2} {3}",
-                                        "", build.Number, _lastBastard,
-                                        build.WebUrl);
-                                }
-
-                                _lastFailedTime = DateTime.Now;
-                                _publishChat.SendMessage(msg);
-                            }
-                        }
-                        else
-                        {
-                            if (_wasBroken)
-                            {
-                                var changes =
-                                    _teamcity.Changes.ByLocator(
-                                        ChangeLocator.WithBuildId(long.Parse(build.Id))).FirstOrDefault();
-                                var author = changes != null ? changes.Username : "<anonymous>";
-                                var msg =
-                                    String.Format(@"{0} Build {1} is fixed by: {2}. Nice job!",
-                                        GetRandomEmoji(_successEmoji), build.Number, author);
-                                _publishChat.SendMessage(msg);
-                                _wasBroken = false;
-                            }
-                            _lastFailedTime = null;
-                            _wasBroken = false;
-                        }
+                        checker.CheckBuild(msg => SendMessage(msg, _publishChat));
                     }
                 }
             }

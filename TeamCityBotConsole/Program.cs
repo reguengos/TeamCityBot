@@ -25,12 +25,14 @@ namespace TeamCityBot
                 TeamCityServer = args[1],
                 TeamCityLogin = args[2],
                 TeamCityPassword = args[3],
-                BuildConfigId = args[4]
+                BuildConfigId = args[4],
+                Branches = args[5].Split(new [] {','}, StringSplitOptions.RemoveEmptyEntries)
+
             };
 
             var moduleParameters = new Dictionary<string, string>();
 
-            foreach (var arg in args.Skip(5))
+            foreach (var arg in args.Skip(6))
             {
                 var p = arg.Split(':');
                 if (p.Length == 2)

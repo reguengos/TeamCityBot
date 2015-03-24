@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BotParameters.cs" />
+    <Compile Include="BuildChecker.cs" />
     <Compile Include="Chat.cs" />
     <Compile Include="IChat.cs" />
     <Compile Include="ISkypeAdapter.cs" />

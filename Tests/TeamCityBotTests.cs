@@ -45,11 +45,15 @@ namespace Tests
             var chat = Substitute.For<IChat>();
             skype.GetChat("").ReturnsForAnyArgs(chat);
             var bot = new TeamCityBot.TeamCityBot();
-            var botParameters = new BotParameters { PublishChatName = "test" };
+            var botParameters = new BotParameters
+            {
+                PublishChatName = "test",
+                Branches = new []{"dev"}
+            };
 
             var builds = Substitute.For<IBuilds>();
             var build = new Build() { Id = "1", Number = "1", Status = "FAILED" };
-            builds.LastBuildByBuildConfigId(Arg.Any<string>()).ReturnsForAnyArgs(build);
+            builds.ByBuildLocator(null).ReturnsForAnyArgs(new List<Build> { build });
             var changes = Substitute.For<IChanges>();
             var change = new Change { Username = "Joe" };
             changes.ByLocator(null).ReturnsForAnyArgs(new List<Change> { change });
@@ -60,7 +64,7 @@ namespace Tests
 
             Thread.Sleep(20000);
 
-            chat.ReceivedWithAnyArgs().SendMessage("Build 1 is broken by: Joe");
+            chat.ReceivedWithAnyArgs().SendMessage("Build 1 (dev) is broken by: Joe");
         }
     }
 }
