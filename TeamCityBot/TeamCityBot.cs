@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HelloBotCore;
 using TeamCitySharp;
+using TeamCitySharp.ActionTypes;
 using TeamCitySharp.Locators;
 using Timer = System.Timers.Timer;
 

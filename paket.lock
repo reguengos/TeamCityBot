@@ -8,6 +8,6 @@ NUGET
     Newtonsoft.Json (6.0.8)
     NSubstitute (1.8.1.0)
     NUnit (2.6.4)
-    TeamCitySharp-forked (1.0.0.1)
+    TeamCitySharp-forked (1.0.0.4)
       EasyHttp (>= 1.6.1.0)
       JsonFx (>= 2.0.1209.2802)

@@ -45,6 +45,7 @@
     <Compile Include="BotParameters.cs" />
     <Compile Include="BuildChecker.cs" />
     <Compile Include="Chat.cs" />
+    <Compile Include="FailReason.cs" />
     <Compile Include="IChat.cs" />
     <Compile Include="ISkypeAdapter.cs" />
     <Compile Include="SkypeAdapter.cs" />
