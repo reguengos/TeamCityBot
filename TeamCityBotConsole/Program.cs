@@ -26,8 +26,7 @@ namespace TeamCityBot
                 TeamCityLogin = args[2],
                 TeamCityPassword = args[3],
                 BuildConfigId = args[4],
-                Branches = args[5].Split(new [] {','}, StringSplitOptions.RemoveEmptyEntries)
-
+                Branches = args[5].Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries)
             };
 
             var moduleParameters = new Dictionary<string, string>();
@@ -45,7 +44,12 @@ namespace TeamCityBot
             var skypeAdapter = new SkypeAdapter(skype);
             var teamCityClient = new TeamCityClient(botParameters.TeamCityServer);
 
-            TeamCityBot.StartBot(skypeAdapter, teamCityClient, botParameters, moduleParameters);
+            TeamCityBot.StartBot(skypeAdapter, teamCityClient, botParameters, moduleParameters,
+                new TimeConfig
+                {
+                    BuildCheckInterval = TimeSpan.FromSeconds(15),
+                    StillBrokenDelay = TimeSpan.FromMinutes(30)
+                });
 
             while (true)
             {

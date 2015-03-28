@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using HelloBotCore;
 using TeamCitySharp;
-using TeamCitySharp.ActionTypes;
 using TeamCitySharp.Locators;
 using Timer = System.Timers.Timer;
 
@@ -13,36 +13,35 @@ namespace TeamCityBot
 {
     public class TeamCityBot
     {
+        private static List<TeamCityBuildChecker> buildCheckers;
+        private HelloBot _bot;
+        private BotParameters _botParameters;
+        private string _lastBastard;
+        private string _lastCheckedBuildId;
+        private DateTime? _lastFailedTime;
+        private IChat _publishChat;
         private ISkypeAdapter _skype;
         private ITeamCityClient _teamcity;
-        private HelloBot _bot;
-        private IChat _publishChat;
-        private string _lastCheckedBuildId;
+        private Timer _timer;
         private bool _wasBroken;
         private bool _working;
-        private string _lastBastard;
-        private readonly object _syncRoot = new object();
-        private readonly Random _r = new Random();
-        private DateTime? _lastFailedTime;
-        private readonly List<string> _successEmoji = new List<string> { @"\o/", "(^)", "(sun)", "(clap)", "(party)" };
-        private BotParameters _botParameters;
         private readonly object _lock = new object();
-        private static List<TeamCityBuildChecker> buildCheckers;
+        private readonly Random _r = new Random();
+        private readonly List<string> _successEmoji = new List<string> {@"\o/", "(^)", "(sun)", "(clap)", "(party)"};
+        private readonly object _syncRoot = new object();
+        private TimeConfig _timeConfig;
 
-        public TeamCityBot()
-        {
-
-        }
-
-        public Task StartBot(ISkypeAdapter skype, ITeamCityClient teamCity, BotParameters botParameters, Dictionary<string, string> moduleParameters, double interval = 15000)
+        public Task StartBot(ISkypeAdapter skype, ITeamCityClient teamCity, BotParameters botParameters,
+            Dictionary<string, string> moduleParameters, TimeConfig timeConfig)
         {
             _working = true;
             _skype = skype;
             _teamcity = teamCity;
             _botParameters = botParameters;
+            _timeConfig = timeConfig;
             _bot = new HelloBot(moduleParameters);
             _bot.OnErrorOccured += BotOnErrorOccured;
-            
+
             var task = Task.Run(delegate
             {
                 try
@@ -57,15 +56,15 @@ namespace TeamCityBot
                         Console.WriteLine("publish chat NOT found!");
                     }
                     _skype.OnMessageReceived += OnMessageReceived;
-                    
-                    Timer timer = new Timer { Interval = interval };
-                    timer.Elapsed += timer_Elapsed;
-                    timer.AutoReset = true;
-                    timer.Start();
+
+                    _timer = new Timer {Interval = timeConfig.BuildCheckInterval.TotalMilliseconds};
+                    _timer.Elapsed += timer_Elapsed;
+                    _timer.AutoReset = false;
+                    _timer.Start();
 
                     while (_working)
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(5);
                     }
                 }
                 catch (Exception ex)
@@ -78,8 +77,8 @@ namespace TeamCityBot
                 _botParameters.Branches.Select(
                     x =>
                         new TeamCityBuildChecker(
-                            BuildLocator.WithDimensions(buildType: BuildTypeLocator.WithId(_botParameters.BuildConfigId),
-                                branch: x), _teamcity, x)).ToList();
+                            BuildLocator.WithDimensions(BuildTypeLocator.WithId(_botParameters.BuildConfigId),
+                                branch: x), _teamcity, x, _timeConfig)).ToList();
 
             return task;
         }
@@ -87,30 +86,29 @@ namespace TeamCityBot
         public void Stop()
         {
             _working = false;
+            _timer.Stop();
         }
 
-        private string GetRandomEmoji(List<string> emojis)
-        {
-            var i = _r.Next(emojis.Count);
-            return emojis[i];
-        }
-
-        private void timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private void timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             try
             {
+                var r = Guid.NewGuid();
                 lock (_syncRoot)
                 {
+                    //Console.WriteLine("enter " + r);
                     foreach (var checker in buildCheckers)
                     {
                         checker.CheckBuild(msg => SendMessage(msg, _publishChat));
                     }
+                    //Console.WriteLine("exit " + r);
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
+            _timer.Start();
         }
 
         private static void BotOnErrorOccured(Exception ex)
@@ -123,7 +121,7 @@ namespace TeamCityBot
             Console.WriteLine("{0}: {1}", e.FromDisplayName, e.Body);
 
             _bot.HandleMessage(e.Body, answer => SendMessage(answer, e.Chat),
-                    new SkypeData() { FromName = e.FromDisplayName });
+                new SkypeData {FromName = e.FromDisplayName});
         }
 
         private void SendMessage(string message, IChat toChat)
@@ -134,10 +132,12 @@ namespace TeamCityBot
                 {
                     message = "(heidy) " + message;
                 }
-                lock (_lock)
-                {
-                    toChat.SendMessage(message);
-                }
+                Console.WriteLine("SENDMESSAGE:" + message);
+                toChat.SendMessage(message);
+            }
+            else
+            {
+                Console.WriteLine("publish chat is null!");
             }
         }
     }

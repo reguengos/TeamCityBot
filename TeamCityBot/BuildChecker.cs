@@ -6,7 +6,7 @@ using TeamCitySharp.Locators;
 
 namespace TeamCityBot
 {
-    internal class TeamCityBuildChecker
+    public class TeamCityBuildChecker
     {
         private static readonly Random _r = new Random();
         private string _lastBastard;
@@ -19,31 +19,44 @@ namespace TeamCityBot
         private List<string> _lastFailedTests = new List<string>();
         private readonly string _name;
         private readonly List<string> _successEmoji = new List<string> {@"\o/", "(^)", "(sun)", "(clap)", "(party)"};
+        private readonly TimeConfig _timeConfig;
 
-        public TeamCityBuildChecker(BuildLocator buildLocator, ITeamCityClient client, string name)
+        public TeamCityBuildChecker(BuildLocator buildLocator, ITeamCityClient client, string name, TimeConfig timeConfig)
         {
             _buildLocator = buildLocator;
             _client = client;
             _name = name;
+            _timeConfig = timeConfig;
         }
 
         public void CheckBuild(Action<String> sendMessage)
         {
             var build = _client.Builds.ByBuildLocator(_buildLocator).FirstOrDefault();
 
-            if (build != null && build.Id != _lastCheckedBuildId)
+            if (build == null)
             {
-                _lastCheckedBuildId = build.Id;
-                Console.WriteLine("Build {0}: {1}", build.Number, build.Status);
+                Console.WriteLine("No builds found by given locator");
+            }
+            else if (build.Id == _lastCheckedBuildId)
+            {
+                Console.WriteLine("Build {0} - already checked last time", build.Id);
+            }
+            else
+            {
+                Console.WriteLine("Found new build {0}: {1}", build.Number, build.Status);
+                //_lastCheckedBuildId = build.Id;
                 if (build.Status != "SUCCESS")
                 {
                     var exactBuild = _client.Builds.ByBuildId(build.Id);
                     var reason = exactBuild.StatusText;
 
-                    if ((!_lastFailedTime.HasValue || (DateTime.Now - _lastFailedTime.Value).TotalMinutes >= 60)
+                    var now = DateTime.Now;
+                    if ((!_lastFailedTime.HasValue ||
+                         (now - _lastFailedTime.Value) >= _timeConfig.StillBrokenDelay)
                         ||
                         (String.IsNullOrEmpty(_lastReason) || _lastReason != reason))
                     {
+                        _lastCheckedBuildId = build.Id;
                         string msg;
                         if (!_wasBroken)
                         {
@@ -51,7 +64,6 @@ namespace TeamCityBot
                                 _client.Changes.ByLocator(
                                     ChangeLocator.WithBuildId(long.Parse(build.Id)))
                                     .FirstOrDefault();
-
                             var failReason = GetReason(reason);
                             var detailedReason = "";
 
@@ -149,6 +161,14 @@ namespace TeamCityBot
                         _lastFailedTime = DateTime.Now;
                         _lastReason = reason;
                         sendMessage(msg);
+                    }
+                    else
+                    {
+                        Console.WriteLine(
+                            "Build is broken but it's too early to notify: lastFailedTime={0}, now={1}, stillBrokenDelay={2}",
+                            _lastFailedTime.Value.ToString("hh:mm:ss.ffff"),
+                            now.ToString("hh:mm:ss.ffff"),
+                            _timeConfig.StillBrokenDelay.TotalMilliseconds);
                     }
                 }
                 else

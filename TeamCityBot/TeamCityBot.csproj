@@ -53,6 +53,7 @@
     <Compile Include="SkypeMessageReceivedEventArgs.cs" />
     <Compile Include="TeamCityBot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TimeConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HelloBotCommunication\HelloBotCommunication.csproj">
