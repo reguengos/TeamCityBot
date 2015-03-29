@@ -29,7 +29,7 @@ namespace TeamCityBot
             _timeConfig = timeConfig;
         }
 
-        public void CheckBuild(Action<String> sendMessage)
+        public void CheckBuild(Action<BuildResult> sendMessage)
         {
             var build = _client.Builds.ByBuildLocator(_buildLocator).FirstOrDefault();
 
@@ -61,7 +61,7 @@ namespace TeamCityBot
                         (_lastTimeTests == null || !testOccurrences.EqualsByFailed(_lastTimeTests)))
                     {
                         _lastCheckedBuildId = build.Id;
-                        string msg;
+                        BuildResult buildResult;
                         if (!_wasBroken)
                         {
                             var changes =
@@ -84,14 +84,16 @@ namespace TeamCityBot
                             _lastBastard = changes != null ? changes.Username : "<anonymous>";
                             _wasBroken = true;
 
-                            msg = String.Format("{0} Build {1} ({2}) is broken by: {3}{6}{4}{6}{5}{6}{7}", "",
-                                build.Number,
-                                _name,
-                                _lastBastard,
-                                reason,
-                                build.WebUrl,
-                                Environment.NewLine,
-                                detailedReason);
+                            buildResult = new BuildResult
+                            {
+                                Number = build.Number,
+                                Branch = _name,
+                                Author = _lastBastard,
+                                ReasonText = reason,
+                                WebUrl = build.WebUrl,
+                                DetailedReason = detailedReason,
+                                Status = BuildStatus.Broken
+                            };
                         }
                         else
                         {
@@ -110,15 +112,21 @@ namespace TeamCityBot
                                 detailedReason = reason;
                             }
 
-
-                            msg = String.Format("{0} Build {1} ({2}) is still broken by: {3}{6}{4}{6}{5}{6}{7}",
-                                "", build.Number, _name, _lastBastard, reason, build.WebUrl,
-                                Environment.NewLine, detailedReason);
+                            buildResult = new BuildResult
+                            {
+                                Number = build.Number,
+                                Branch = _name,
+                                Author = _lastBastard,
+                                ReasonText = reason,
+                                WebUrl = build.WebUrl,
+                                DetailedReason = detailedReason,
+                                Status = BuildStatus.StillBroken
+                            };
                         }
 
                         _lastFailedTime = now;
                         _lastReason = reason;
-                        sendMessage(msg);
+                        sendMessage(buildResult);
                     }
                     else
                     {
@@ -137,10 +145,14 @@ namespace TeamCityBot
                             _client.Changes.ByLocator(
                                 ChangeLocator.WithBuildId(long.Parse(build.Id))).FirstOrDefault();
                         var author = changes != null ? changes.Username : "<anonymous>";
-                        var msg =
-                            String.Format(@"{0} Build {1} ({2}) is fixed by: {3}. Nice job!",
-                                GetRandomEmoji(_successEmoji), build.Number, _name, author);
-                        sendMessage(msg);
+                        var result = new BuildResult
+                        {
+                            Number = build.Number,
+                            Branch = _name,
+                            Author = author,
+                            Status = BuildStatus.Fixed
+                        };
+                        sendMessage(result);
                         _wasBroken = false;
                     }
                     _lastFailedTime = null;
@@ -149,12 +161,6 @@ namespace TeamCityBot
                     _lastTimeTests = null;
                 }
             }
-        }
-
-        private static string GetRandomEmoji(List<string> emojis)
-        {
-            var i = _r.Next(emojis.Count);
-            return emojis[i];
         }
 
         private FailReason GetReason(string status)

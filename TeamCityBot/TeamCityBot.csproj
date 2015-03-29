@@ -44,6 +44,9 @@
   <ItemGroup>
     <Compile Include="BotParameters.cs" />
     <Compile Include="BuildChecker.cs" />
+    <Compile Include="BuildResult.cs" />
+    <Compile Include="BuildResultFormatter.cs" />
+    <Compile Include="BuildStatus.cs" />
     <Compile Include="Chat.cs" />
     <Compile Include="DateTimeProvider.cs" />
     <Compile Include="FailReason.cs" />

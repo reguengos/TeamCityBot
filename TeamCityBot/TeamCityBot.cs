@@ -30,6 +30,7 @@ namespace TeamCityBot
         private readonly List<string> _successEmoji = new List<string> {@"\o/", "(^)", "(sun)", "(clap)", "(party)"};
         private readonly object _syncRoot = new object();
         private TimeConfig _timeConfig;
+        private BuildResultFormatter _formatter = new BuildResultFormatter();
 
         public Task StartBot(ISkypeAdapter skype, ITeamCityClient teamCity, BotParameters botParameters,
             Dictionary<string, string> moduleParameters, TimeConfig timeConfig)
@@ -99,7 +100,7 @@ namespace TeamCityBot
                     //Console.WriteLine("enter " + r);
                     foreach (var checker in buildCheckers)
                     {
-                        checker.CheckBuild(msg => SendMessage(msg, _publishChat));
+                        checker.CheckBuild(msg => SendMessage(_formatter.Format(msg), _publishChat));
                     }
                     //Console.WriteLine("exit " + r);
                 }

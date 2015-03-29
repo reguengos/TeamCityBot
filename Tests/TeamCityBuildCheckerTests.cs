@@ -20,7 +20,8 @@ namespace Tests
         private FakeBuilds builds;
         private FakeTestOccurrences testOccurrences;
         private List<string> _sendMessages;
-        private Action<string> _sendMessageAction;
+        private Action<BuildResult> _sendMessageAction;
+        private BuildResultFormatter _formatter;
         
         [SetUp]
         public void SetUp()
@@ -33,8 +34,10 @@ namespace Tests
             testOccurrences = new FakeTestOccurrences();
             tc.TestOccurrences.Returns(testOccurrences);
 
+            _formatter = new BuildResultFormatter();
+
             _sendMessages = new List<string>();
-            _sendMessageAction = msg => _sendMessages.Add(msg);
+            _sendMessageAction = result => _sendMessages.Add(_formatter.Format(result));
 
             Console.WriteLine("Setup finish");
         }
