@@ -44,8 +44,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FakeBuilds.cs" />
+    <Compile Include="FakeTestOccurrences.cs" />
     <Compile Include="TeamCityBotTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TeamCityBuildCheckerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />

@@ -44,13 +44,12 @@ namespace TeamCityBot
             else
             {
                 Console.WriteLine("Found new build {0}: {1}", build.Number, build.Status);
-                //_lastCheckedBuildId = build.Id;
                 if (build.Status != "SUCCESS")
                 {
                     var exactBuild = _client.Builds.ByBuildId(build.Id);
                     var reason = exactBuild.StatusText;
 
-                    var now = DateTime.Now;
+                    var now = DateTimeProvider.UtcNow;
                     if ((!_lastFailedTime.HasValue ||
                          (now - _lastFailedTime.Value) >= _timeConfig.StillBrokenDelay)
                         ||
@@ -158,7 +157,7 @@ namespace TeamCityBot
                                 Environment.NewLine, detailedReason);
                         }
 
-                        _lastFailedTime = DateTime.Now;
+                        _lastFailedTime = now;
                         _lastReason = reason;
                         sendMessage(msg);
                     }
