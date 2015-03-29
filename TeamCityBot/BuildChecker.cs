@@ -16,7 +16,7 @@ namespace TeamCityBot
         private bool _wasBroken;
         private readonly BuildLocator _buildLocator;
         private readonly ITeamCityClient _client;
-        private List<string> _lastFailedTests = new List<string>();
+        private TestOccurrencesCollection _lastTimeTests;
         private readonly string _name;
         private readonly List<string> _successEmoji = new List<string> {@"\o/", "(^)", "(sun)", "(clap)", "(party)"};
         private readonly TimeConfig _timeConfig;
@@ -49,11 +49,16 @@ namespace TeamCityBot
                     var exactBuild = _client.Builds.ByBuildId(build.Id);
                     var reason = exactBuild.StatusText;
 
+                    var testOccurrences =
+                        new TestOccurrencesCollection(_client.TestOccurrences.ByBuildId(build.Id, 1500));
+
                     var now = DateTimeProvider.UtcNow;
                     if ((!_lastFailedTime.HasValue ||
                          (now - _lastFailedTime.Value) >= _timeConfig.StillBrokenDelay)
                         ||
-                        (String.IsNullOrEmpty(_lastReason) || _lastReason != reason))
+                        (String.IsNullOrEmpty(_lastReason) || _lastReason != reason)
+                        ||
+                        (_lastTimeTests == null || !testOccurrences.EqualsByFailed(_lastTimeTests)))
                     {
                         _lastCheckedBuildId = build.Id;
                         string msg;
@@ -68,22 +73,8 @@ namespace TeamCityBot
 
                             if (failReason == FailReason.Tests)
                             {
-                                var failedTests =
-                                    _client.TestOccurrences.ByBuildId(build.Id, 1500)
-                                        .Where(x => x.Status != "SUCCESS" && !x.Ignored && !x.Muted)
-                                        .Select(x => x.Name.Split(new[] {": "}, StringSplitOptions.None)[1]);
-
-                                var failedMoreCount = failedTests.Count() - 10;
-                                var failedShort = failedTests.Take(10);
-
-                                var reasonTail = failedMoreCount > 0
-                                    ? Environment.NewLine + "and " + failedMoreCount + " more..."
-                                    : "";
-
-                                detailedReason = String.Format("Broken tests: {0}{1}{2}", Environment.NewLine,
-                                    String.Join(Environment.NewLine, failedShort), reasonTail);
-
-                                _lastFailedTests = failedTests.ToList();
+                                detailedReason = testOccurrences.Show();
+                                _lastTimeTests = testOccurrences;
                             }
                             else
                             {
@@ -109,42 +100,10 @@ namespace TeamCityBot
 
                             if (failReason == FailReason.Tests)
                             {
-                                var failedTests =
-                                    _client.TestOccurrences.ByBuildId(build.Id, 1500)
-                                        .Where(x => x.Status != "SUCCESS" && !x.Ignored && !x.Muted)
-                                        .Select(x => x.Name)
-                                        .ToList();
-
-                                var newFailedTests = failedTests.Except(_lastFailedTests);
-                                var newSuccessTests = _lastFailedTests.Except(failedTests);
-
-                                if (newSuccessTests.Any())
-                                {
-                                    var failedMoreCount = newFailedTests.Count() - 10;
-                                    var failedShort = newFailedTests.Take(10);
-
-                                    var reasonTail = failedMoreCount > 0
-                                        ? Environment.NewLine + "and " + failedMoreCount + " more..."
-                                        : "";
-
-                                    detailedReason += String.Format("New broken tests: {0}{1}{2}", Environment.NewLine,
-                                        String.Join(Environment.NewLine, failedShort), reasonTail);
-                                }
-
-                                if (newFailedTests.Any())
-                                {
-                                    var successMoreCount = newSuccessTests.Count() - 10;
-                                    var successShort = newSuccessTests.Take(10);
-
-                                    var reasonTail = successMoreCount > 0
-                                        ? Environment.NewLine + "and " + successMoreCount + " more..."
-                                        : "";
-
-                                    detailedReason += String.Format("Fixed tests: {0}{1}{2}", Environment.NewLine,
-                                        String.Join(Environment.NewLine, successShort), reasonTail);
-                                }
-
-                                _lastFailedTests = failedTests;
+                                var diff = _lastTimeTests.Diff(testOccurrences);
+                                detailedReason += diff.Show(showFailed:true, failedPrefix:"New broken tests", showSuccess:true, successPrefix:"Fixed tests");
+                                
+                                _lastTimeTests = testOccurrences;
                             }
                             else
                             {
@@ -187,6 +146,7 @@ namespace TeamCityBot
                     _lastFailedTime = null;
                     _lastReason = null;
                     _wasBroken = false;
+                    _lastTimeTests = null;
                 }
             }
         }
