@@ -13,15 +13,15 @@ namespace TeamCityBot
         private string _lastCheckedBuildId;
         private DateTime? _lastFailedTime;
         private string _lastReason;
+        private TestOccurrencesCollection _lastTimeTests;
         private bool _wasBroken;
         private readonly BuildLocator _buildLocator;
         private readonly ITeamCityClient _client;
-        private TestOccurrencesCollection _lastTimeTests;
         private readonly string _name;
-        private readonly List<string> _successEmoji = new List<string> {@"\o/", "(^)", "(sun)", "(clap)", "(party)"};
         private readonly TimeConfig _timeConfig;
 
-        public TeamCityBuildChecker(BuildLocator buildLocator, ITeamCityClient client, string name, TimeConfig timeConfig)
+        public TeamCityBuildChecker(BuildLocator buildLocator, ITeamCityClient client, string name,
+            TimeConfig timeConfig)
         {
             _buildLocator = buildLocator;
             _client = client;
@@ -44,6 +44,12 @@ namespace TeamCityBot
             else
             {
                 Console.WriteLine("Found new build {0}: {1}", build.Number, build.Status);
+
+                var changes = _client.Changes.ByLocator(
+                    ChangeLocator.WithBuildId(long.Parse(build.Id)))
+                    .FirstOrDefault();
+                var author = changes != null ? changes.Username : "<anonymous>";
+
                 if (build.Status != "SUCCESS")
                 {
                     var exactBuild = _client.Builds.ByBuildId(build.Id);
@@ -61,15 +67,12 @@ namespace TeamCityBot
                         (_lastTimeTests == null || !testOccurrences.EqualsByFailed(_lastTimeTests)))
                     {
                         _lastCheckedBuildId = build.Id;
+                        var failReason = GetReason(reason);
+
                         BuildResult buildResult;
                         if (!_wasBroken)
                         {
-                            var changes =
-                                _client.Changes.ByLocator(
-                                    ChangeLocator.WithBuildId(long.Parse(build.Id)))
-                                    .FirstOrDefault();
-                            var failReason = GetReason(reason);
-                            var detailedReason = "";
+                            string detailedReason;
 
                             if (failReason == FailReason.Tests)
                             {
@@ -81,7 +84,7 @@ namespace TeamCityBot
                                 detailedReason = reason; //TODO: get error message from build log
                             }
 
-                            _lastBastard = changes != null ? changes.Username : "<anonymous>";
+                            _lastBastard = author;
                             _wasBroken = true;
 
                             buildResult = new BuildResult
@@ -97,14 +100,13 @@ namespace TeamCityBot
                         }
                         else
                         {
-                            var failReason = GetReason(reason);
                             var detailedReason = "";
 
                             if (failReason == FailReason.Tests)
                             {
                                 var diff = _lastTimeTests.Diff(testOccurrences);
-                                detailedReason += diff.Show(showFailed:true, failedPrefix:"New broken tests", showSuccess:true, successPrefix:"Fixed tests");
-                                
+                                detailedReason += diff.Show(true, "New broken tests", true, "Fixed tests");
+
                                 _lastTimeTests = testOccurrences;
                             }
                             else
@@ -141,10 +143,6 @@ namespace TeamCityBot
                 {
                     if (_wasBroken)
                     {
-                        var changes =
-                            _client.Changes.ByLocator(
-                                ChangeLocator.WithBuildId(long.Parse(build.Id))).FirstOrDefault();
-                        var author = changes != null ? changes.Username : "<anonymous>";
                         var result = new BuildResult
                         {
                             Number = build.Number,
