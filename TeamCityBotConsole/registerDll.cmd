@@ -1,2 +1,2 @@
 @echo off
-regsvr32 Skype4COM.dll 
+regsvr32 /s Skype4COM.dll 
