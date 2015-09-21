@@ -43,6 +43,7 @@ namespace TeamCityBot
             var skype = new Skype();
             var skypeAdapter = new SkypeAdapter(skype);
             var teamCityClient = new TeamCityClient(botParameters.TeamCityServer);
+			teamCityClient.Connect(botParameters.TeamCityLogin, botParameters.TeamCityPassword);
 
             TeamCityBot.StartBot(skypeAdapter, teamCityClient, botParameters, moduleParameters,
                 new TimeConfig

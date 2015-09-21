@@ -5,6 +5,6 @@ namespace HelloBotCommunication
 {
     public interface IActionHandlerRegister
     {
-        List<IActionHandler> GetHandlers(IDictionary<string, string> moduleParameters);
+        List<IActionHandler> GetHandlers(IDictionary<string, string> moduleParameters, IEnumerable<ITeamCityBuildChecker> buildCheckers);
     }
 }

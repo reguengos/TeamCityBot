@@ -61,6 +61,10 @@
   </Target>
   -->
   <ItemGroup>
+    <ProjectReference Include="..\HelloBotCommunication\HelloBotCommunication.csproj">
+      <Project>{53eb844b-b3a7-4397-9db3-84f5d9f30840}</Project>
+      <Name>HelloBotCommunication</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Modules\Modules.csproj">
       <Project>{e97288a0-fc3c-41c7-ab26-42928f5ebd31}</Project>
       <Name>Modules</Name>

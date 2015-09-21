@@ -42,7 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlameHandler.cs" />
     <Compile Include="JiraIssueHandler.cs" />
+    <Compile Include="UnmuteHandler.cs" />
+    <Compile Include="MuteHandler.cs" />
     <Compile Include="RuOkHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="HandlerRegister.cs" />

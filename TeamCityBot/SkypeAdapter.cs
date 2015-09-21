@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography.X509Certificates;
 using SKYPE4COMLib;
 
 namespace TeamCityBot
@@ -11,6 +12,7 @@ namespace TeamCityBot
         {
             skype.Attach();
             skype.MessageStatus += skype_MessageStatus;
+	        _skype = skype;
         }
 
         public event EventHandler<SkypeMessageReceivedEventArgs> OnMessageReceived;
@@ -29,9 +31,9 @@ namespace TeamCityBot
 
         public IChat GetChat(string topic)
         {
-            foreach (Chat chat in _skype.Chats)
+	      foreach (Chat chat in _skype.Chats)
             {
-                if (chat.Topic == topic)
+                if (chat.Topic == topic || chat.Name.EndsWith(topic))
                 {
                     return new SkypeChat(chat);
                 }

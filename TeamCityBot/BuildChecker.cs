@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HelloBotCommunication;
 using TeamCitySharp;
 using TeamCitySharp.Locators;
 
 namespace TeamCityBot
 {
-    public class TeamCityBuildChecker
+    public class TeamCityBuildChecker : ITeamCityBuildChecker
     {
         private static readonly Random _r = new Random();
         private string _lastBastard;
@@ -19,6 +20,9 @@ namespace TeamCityBot
         private readonly ITeamCityClient _client;
         private readonly string _name;
         private readonly TimeConfig _timeConfig;
+	    private bool _muted;
+
+		public string Branch { get; private set; }
 
         public TeamCityBuildChecker(BuildLocator buildLocator, ITeamCityClient client, string name,
             TimeConfig timeConfig)
@@ -27,6 +31,8 @@ namespace TeamCityBot
             _client = client;
             _name = name;
             _timeConfig = timeConfig;
+
+	        Branch = name;
         }
 
         public void CheckBuild(Action<BuildResult> sendMessage)
@@ -61,10 +67,10 @@ namespace TeamCityBot
                     var now = DateTimeProvider.UtcNow;
                     if ((!_lastFailedTime.HasValue ||
                          (now - _lastFailedTime.Value) >= _timeConfig.StillBrokenDelay)
-                        ||
-                        (String.IsNullOrEmpty(_lastReason) || _lastReason != reason)
-                        ||
-                        (_lastTimeTests == null || !testOccurrences.EqualsByFailed(_lastTimeTests)))
+                        //||
+                        //(String.IsNullOrEmpty(_lastReason) || _lastReason != reason)
+                        //||
+                        /*(_lastTimeTests == null || !testOccurrences.EqualsByFailed(_lastTimeTests))*/)
                     {
                         _lastCheckedBuildId = build.Id;
                         var failReason = GetReason(reason);
@@ -128,7 +134,10 @@ namespace TeamCityBot
 
                         _lastFailedTime = now;
                         _lastReason = reason;
-                        sendMessage(buildResult);
+	                    if (!_muted)
+	                    {
+		                    sendMessage(buildResult);
+	                    }
                     }
                     else
                     {
@@ -169,5 +178,20 @@ namespace TeamCityBot
             }
             return FailReason.Build;
         }
+
+	    public void Mute()
+	    {
+		    _muted = true;
+	    }
+
+	    public void Unmute()
+	    {
+		    _muted = false;
+	    }
+
+	    public void Blame(string person)
+	    {
+		    if (_wasBroken) _lastBastard = person;
+	    }
     }
 }

@@ -9,7 +9,7 @@ namespace Modules
 {
 	public class HandlerRegister : IActionHandlerRegister
 	{
-		public List<IActionHandler> GetHandlers(IDictionary<string, string> moduleParameters)
+		public List<IActionHandler> GetHandlers(IDictionary<string, string> moduleParameters, IEnumerable<ITeamCityBuildChecker> buildCheckers)
 		{
             string jiraLogin;
 		    string jiraPassword;
@@ -21,7 +21,9 @@ namespace Modules
 			return new List<IActionHandler>
 			{
 			    new RuOkHandler(),
-                new JiraIssueHandler(jiraAddress,jiraLogin,jiraPassword)
+                new JiraIssueHandler(jiraAddress,jiraLogin,jiraPassword),
+				new MuteHandler(buildCheckers),
+				new UnmuteHandler(buildCheckers)
 			};
 		}
 	}

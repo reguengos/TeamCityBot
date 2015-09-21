@@ -42,6 +42,7 @@
     <Compile Include="ClientDataInterfaces\ISkypeData.cs" />
     <Compile Include="IActionHandlerRegister.cs" />
     <Compile Include="IRegexActionHandler.cs" />
+    <Compile Include="ITeamCityBuildChecker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IActionHandler.cs" />
   </ItemGroup>

@@ -40,8 +40,6 @@ namespace TeamCityBot
             _teamcity = teamCity;
             _botParameters = botParameters;
             _timeConfig = timeConfig;
-            _bot = new HelloBot(moduleParameters);
-            _bot.OnErrorOccured += BotOnErrorOccured;
 
             var task = Task.Run(delegate
             {
@@ -80,6 +78,9 @@ namespace TeamCityBot
                         new TeamCityBuildChecker(
                             BuildLocator.WithDimensions(BuildTypeLocator.WithId(_botParameters.BuildConfigId),
                                 branch: x), _teamcity, x, _timeConfig)).ToList();
+
+			_bot = new HelloBot(moduleParameters, buildCheckers);
+			_bot.OnErrorOccured += BotOnErrorOccured;
 
             return task;
         }

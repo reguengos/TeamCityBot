@@ -18,8 +18,8 @@ namespace TeamCityBot
 
         public TestOccurrencesCollection(IEnumerable<TestOccurrence> occurrences)
         {
-            _occurrences = occurrences;
-            _occurencesDict = occurrences.ToDictionary(x => x.Name, x => x);
+	        _occurrences = occurrences ?? Enumerable.Empty<TestOccurrence>();
+            _occurencesDict = _occurrences.ToDictionary(x => x.Name, x => x);
         }
 
         public IEnumerable<TestOccurrence> Ignored
