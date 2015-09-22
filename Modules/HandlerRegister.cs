@@ -23,7 +23,8 @@ namespace Modules
 			    new RuOkHandler(),
                 new JiraIssueHandler(jiraAddress,jiraLogin,jiraPassword),
 				new MuteHandler(buildCheckers),
-				new UnmuteHandler(buildCheckers)
+				new UnmuteHandler(buildCheckers),
+				new BlameHandler(buildCheckers)
 			};
 		}
 	}
