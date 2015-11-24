@@ -19,14 +19,13 @@ namespace Modules
 		public AngerHandler(Action<string> sendMessageFunc)
 		{
 			_sendMessageFunc = sendMessageFunc;
+			_timer = new Timer(20000);
+			_timer.Elapsed += _timer_Elapsed;
+			_timer.Start();
 		}
 
 		public void HandleMessage(string args, object clientData, Action<string> sendMessageFunc)
 		{
-			_sendMessageFunc = sendMessageFunc;
-			_timer = new Timer(20000);
-			_timer.Elapsed += _timer_Elapsed;
-			_timer.Start();
 		}
 
 		void _timer_Elapsed(object sender, ElapsedEventArgs e)
