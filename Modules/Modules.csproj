@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AngerHandler.cs" />
     <Compile Include="BlameHandler.cs" />
     <Compile Include="JiraIssueHandler.cs" />
     <Compile Include="UnmuteHandler.cs" />

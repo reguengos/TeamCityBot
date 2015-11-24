@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -79,7 +80,7 @@ namespace TeamCityBot
                             BuildLocator.WithDimensions(BuildTypeLocator.WithId(_botParameters.BuildConfigId),
                                 branch: x), _teamcity, x, _timeConfig)).ToList();
 
-			_bot = new HelloBot(moduleParameters, buildCheckers);
+			_bot = new HelloBot(moduleParameters, buildCheckers, MailSettingsSectionGroup => SendMessage(MailSettingsSectionGroup, _publishChat));
 			_bot.OnErrorOccured += BotOnErrorOccured;
 
             return task;

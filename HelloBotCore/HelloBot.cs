@@ -25,7 +25,7 @@ namespace HelloBotCore
         /// </summary>
         /// <param name="dllMask">File mask for retrieving client command dlls</param>
         /// <param name="botCommandPrefix">Prefix for bot commands. Only messages with that prefix will be handled</param>
-        public HelloBot(IDictionary<string, string> moduleParameters, IEnumerable<ITeamCityBuildChecker> buildCheckers,  string dllMask = "*.dll", string botCommandPrefix = "!")
+        public HelloBot(IDictionary<string, string> moduleParameters, IEnumerable<ITeamCityBuildChecker> buildCheckers, Action<string> sendCommand, string dllMask = "*.dll", string botCommandPrefix = "!")
         {
             this.dllMask = dllMask;
             this.botCommandPrefix = botCommandPrefix;
@@ -37,16 +37,16 @@ namespace HelloBotCore
                 {"help", new Tuple<string, Func<string>>("список системных команд", GetSystemCommands)},
                 {"modules", new Tuple<string, Func<string>>("список кастомных модулей", GetUserDefinedCommands)},
             };
-			RegisterModules(buildCheckers);
+			RegisterModules(buildCheckers, sendCommand);
         }
 
-		private void RegisterModules(IEnumerable<ITeamCityBuildChecker> buildCheckers)
+		private void RegisterModules(IEnumerable<ITeamCityBuildChecker> buildCheckers, Action<string> sendCommand)
         {
-            handlers = GetHandlers(buildCheckers);
+            handlers = GetHandlers(buildCheckers, sendCommand);
             regexHandlers = handlers.Select(x => x as IRegexActionHandler).Where(x => x!=null).ToList();
         }
 
-		protected virtual List<IActionHandler> GetHandlers(IEnumerable<ITeamCityBuildChecker> buildCheckers)
+		protected virtual List<IActionHandler> GetHandlers(IEnumerable<ITeamCityBuildChecker> buildCheckers, Action<string> sendCommand)
         {
             List<IActionHandler> toReturn = new List<IActionHandler>();
             var dlls = Directory.GetFiles(".", dllMask);
@@ -62,7 +62,7 @@ namespace HelloBotCore
                 foreach (Type type in typesInAssembly)
                 {
                     object obj = Activator.CreateInstance(type);
-                    var clientHandlers = ((IActionHandlerRegister)obj).GetHandlers(moduleParameters, buildCheckers);
+                    var clientHandlers = ((IActionHandlerRegister)obj).GetHandlers(moduleParameters, buildCheckers, sendCommand);
                     foreach (IActionHandler handler in clientHandlers)
                     {
                         toReturn.Add(handler);
