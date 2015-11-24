@@ -32,7 +32,8 @@ namespace Modules
 		void _timer_Elapsed(object sender, ElapsedEventArgs e)
 		{
 			var now = DateTime.Now;
-			if (now.Hour == 12 && now.Minute == 0 && (now.Day != lastDay || lastDay == -1))
+			if (now.Hour == 12 && now.Minute == 0 && (now.Day != lastDay || lastDay == -1) 
+				&& now.DayOfWeek != DayOfWeek.Saturday && now.DayOfWeek != DayOfWeek.Sunday)
 			{
 				_sendMessageFunc("(anger)");
 				lastDay = now.Day;
